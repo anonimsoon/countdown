@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOON</title>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Countdown">
+    <meta property="og:description" content="See the countdown here!">
+    <meta property="og:image" content="https://cdn.phototourl.com/free/2026-04-10-a7d971ce-3a19-42a9-9858-0b082333808f.png">
+    <meta property="og:url" content="https://earfultime.github.io/countdown/">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Countdown">
+    <meta name="twitter:description" content="See the countdown here!">
+    <meta name="twitter:image" content="https://cdn.phototourl.com/free/2026-04-10-a7d971ce-3a19-42a9-9858-0b082333808f.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        /* PARALLAX BACKGROUND */
+        .parallax-container {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .bg-image {
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            background-image: url('https://cdn.phototourl.com/free/2026-04-10-a7d971ce-3a19-42a9-9858-0b082333808f.png');
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+            backdrop-filter: blur(2px);
+        }
+
+        /* MAIN LAYOUT - PERFECT CENTER */
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            height: 100dvh; /* Dynamic Viewport Height for Mobile */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .content-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 90dvh;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .content-card::-webkit-scrollbar { display: none; }
+
+        /* TYPOGRAPHY */
+        .title {
+            font-size: clamp(40px, 12vw, 60px);
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(to bottom, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* COUNTDOWN */
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .time-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 2px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .time-val {
+            display: block;
+            font-size: 20px;
+            font-weight: 800;
+            font-family: 'Monaco', 'Consolas', monospace;
+            color: #fff;
+        }
+
+        .time-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        /* GAME SECTION */
+        .game-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        .battle-stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .hp-unit {
+            flex: 1;
+            text-align: left;
+        }
+
+        .hp-label {
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .hp-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .hp-bar {
+            height: 100%;
+            width: 100%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #boss-hp { background: #fff; }
+        #player-hp { background: #f87171; }
+
+        .taunt-bubble {
+            font-size: 12px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.6);
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 12px 0;
+            border-radius: 18px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.1;
+            cursor: not-allowed;
+        }
+
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        #game-result {
+            font-weight: 900;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .res-win { color: #4ade80; }
+        .res-lose { color: #f87171; }
+        .res-draw { color: #fbbf24; }
+
+        .reset-link {
+            font-size: 9px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.15);
+            text-decoration: underline;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* MOBILE OPTIMIZATION */
+        @media (max-width: 480px) {
+            .content-card {
+                padding: 25px 20px;
+                gap: 15px;
+                border-radius: 35px;
+            }
+            .title { font-size: 48px; }
+            .choice-btn { font-size: 18px; padding: 10px 0; }
+            .time-val { font-size: 18px; }
+            .countdown-grid { gap: 6px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="parallax-container">
+        <div class="bg-image" id="bg"></div>
+        <div class="overlay"></div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="content-card">
+            <div>
+                <h1 class="title">SOON</h1>
+                <p style="font-size: 9px; letter-spacing: 2px; opacity: 0.3; margin-top: 5px; font-weight: 800;">MAY 3, 2026 • 17:00 WIB</p>
+            </div>
+
+            <div class="countdown-grid">
+                <div class="time-box"><span class="time-val" id="d">00</span><div class="time-label">Days</div></div>
+                <div class="time-box"><span class="time-val" id="h">00</span><div class="time-label">Hours</div></div>
+                <div class="time-box"><span class="time-val" id="m">00</span><div class="time-label">Mins</div></div>
+                <div class="time-box"><span class="time-val" id="s">00</span><div class="time-label">Secs</div></div>
+            </div>
+
+            <div class="game-section">
+                <div class="battle-stats">
+                    <div class="hp-unit">
+                        <div class="hp-label">PLAYER HP</div>
+                        <div class="hp-container"><div id="player-hp" class="hp-bar"></div></div>
+                    </div>
+                    <div class="hp-unit" style="text-align: right;">
+                        <div class="hp-label">BOSS HP</div>
+                        <div class="hp-container"><div id="boss-hp" class="hp-bar"></div></div>
+                    </div>
+                </div>
+
+                <div class="taunt-bubble" id="taunt">"Can you survive my challenge?"</div>
+
+                <div class="btn-grid">
+                    <button class="choice-btn" onclick="play('rock')">✊</button>
+                    <button class="choice-btn" onclick="play('paper')">✋</button>
+                    <button class="choice-btn" onclick="play('scissors')">✌️</button>
+                </div>
+
+                <div class="game-footer">
+                    <div id="game-result">BATTLE START!</div>
+                    <div>WIN: <span id="win-count">0</span></div>
+                </div>
+
+                <button class="reset-link" onclick="reset()">Reset Battle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bg = document.getElementById('bg');
+        let curX = 0, curY = 0, tarX = 0, tarY = 0;
+
+        /* PARALLAX & AUTO IDLE */
+        function loop() {
+            curX += (tarX - curX) * 0.05;
+            curY += (tarY - curY) * 0.05;
+            bg.style.transform = `translate(${curX}px, ${curY}px) scale(1.1)`;
+            requestAnimationFrame(loop);
+        }
+        loop();
+
+        document.addEventListener('mousemove', e => {
+            tarX = (window.innerWidth / 2 - e.clientX) / 25;
+            tarY = (window.innerHeight / 2 - e.clientY) / 25;
+        });
+
+        document.addEventListener('touchmove', e => {
+            const t = e.touches[0];
+            tarX = (window.innerWidth / 2 - t.clientX) / 25;
+            tarY = (window.innerHeight / 2 - t.clientY) / 25;
+        });
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', e => {
+                if(e.gamma && e.beta) {
+                    tarX = e.gamma / 2;
+                    tarY = e.beta / 2;
+                }
+            });
+        }
+
+        let idle = 0;
+        setInterval(() => {
+            if (Math.abs(tarX) < 1 && Math.abs(tarY) < 1) {
+                tarX = Math.sin(idle) * 8;
+                tarY = Math.cos(idle) * 8;
+                idle += 0.04;
+            }
+        }, 50);
+
+        /* COUNTDOWN - TARGET: MAY 3, 2026, 17:00 WIB */
+        const target = new Date("2026-05-03T17:00:00+07:00").getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const diff = target - now;
+            if (diff < 0) {
+                document.querySelectorAll('.time-val').forEach(el => el.innerText = "00");
+                return;
+            }
+
+            document.getElementById('d').innerText = Math.floor(diff / 864e5).toString().padStart(2, '0');
+            document.getElementById('h').innerText = Math.floor((diff % 864e5) / 36e5).toString().padStart(2, '0');
+            document.getElementById('m').innerText = Math.floor((diff % 36e5) / 6e4).toString().padStart(2, '0');
+            document.getElementById('s').innerText = Math.floor((diff % 6e4) / 1e3).toString().padStart(2, '0');
+        }, 1000);
+
+        /* GAME LOGIC - FAIR 50:50 */
+        let pHP = 100, bHP = 100, wins = 0;
+        const choices = ['rock', 'paper', 'scissors'];
+        const winT = ["How?!", "Lucky shot!", "No way...", "Cheater!"];
+        const loseT = ["Too slow!", "Predictable.", "Give up.", "Easy."];
+
+        function play(p) {
+            if (pHP <= 0 || bHP <= 0) return;
+            
+            // Boss AI: Purely random (Fair 50:50)
+            let b = choices[Math.floor(Math.random() * 3)];
+
+            const resDiv = document.getElementById('game-result');
+            const tauntDiv = document.getElementById('taunt');
+
+            if (p === b) {
+                resDiv.innerText = "DRAW";
+                resDiv.className = "res-draw";
+                tauntDiv.innerText = '"A tie? You\'re lucky."';
+            } else if ((p==='rock'&&b==='scissors')||(p==='paper'&&b==='rock')||(p==='scissors'&&b==='paper')) {
+                bHP -= 20;
+                resDiv.innerText = "WIN";
+                resDiv.className = "res-win";
+                tauntDiv.innerText = `"${winT[Math.floor(Math.random()*winT.length)]}"`;
+            } else {
+                pHP -= 20;
+                resDiv.innerText = "LOSE";
+                resDiv.className = "res-lose";
+                tauntDiv.innerText = `"${loseT[Math.floor(Math.random()*loseT.length)]}"`;
+            }
+
+            document.getElementById('boss-hp').style.width = bHP + "%";
+            document.getElementById('player-hp').style.width = pHP + "%";
+
+            if (bHP <= 0) {
+                wins++;
+                document.getElementById('win-count').innerText = wins;
+                tauntDiv.innerText = '"NOOO! I AM DEFEATED!"';
+                resDiv.innerText = "VICTORY!";
+                document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+            } else if (pHP <= 0) {
+                tauntDiv.innerText = '"Hahaha! Better luck next time."';
+                resDiv.innerText = "GAME OVER";
+                document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+            }
+        }
+
+        function reset() {
+            pHP = 100; bHP = 100;
+            document.getElementById('boss-hp').style.width = "100%";
+            document.getElementById('player-hp').style.width = "100%";
+            document.getElementById('game-result').innerText = "BATTLE START!";
+            document.getElementById('game-result').className = "";
+            document.getElementById('taunt').innerText = '"Can you survive my challenge?"';
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = false);
+        }
+    </script>
+</body>
+</html>
